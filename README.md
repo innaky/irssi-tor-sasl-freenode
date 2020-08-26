@@ -1,7 +1,7 @@
 # Idioms/Idiomas
 
-* [English]
-* [Español]
+* [English](https://github.com/innaky/irssi-tor-sasl-freenode#configuration-tor-sasl--irssi--freenode)
+* [Español](https://github.com/innaky/irssi-tor-sasl-freenode#configuraci%C3%B3n-tor-sasl--irssi--freenode)
 
 # Configuration Tor-SASL + irssi + Freenode
 Configuration for irssi with tor + sasl, freenode.
@@ -57,13 +57,13 @@ In the OS shell (Bash/Ksh)
 4> mv your_nick.pem ~/.irssi/config
 ```
 
-*1>* **Replace your_nick.key** and **your_nick.cert**, for your nick, example: **innaky.key**, **innaky.cert**.
+1) **Replace your_nick.key** and **your_nick.cert**, for your nick, example: **innaky.key**, **innaky.cert**.
 
-*2>* Follow the same logic for **your_nick.pem**.
+2) Follow the same logic for **your_nick.pem**.
 
-*3>* With This line you get **the fingerprint** for add in your freenode account (the output is similar to: c2ba4db1ccc82cd3f8ec50ebcc3461628f95ab27).
+3) With This line you get **the fingerprint** for add in your freenode account (the output is similar to: c2ba4db1ccc82cd3f8ec50ebcc3461628f95ab27).
 
-*4>* **copy or move the file .pem** for the irssi config file in your **home directory**.
+4) **copy or move the file .pem** for the irssi config file in your **home directory**.
 
 ## Adding your fingerprint certificate in freenode
 
@@ -252,7 +252,7 @@ Una vez conectada al Freenode, en la línea de abajo agrega:
 
 y revisa tu correo electrónico.
 
-# Construye tu *fingerprint* (Huella)
+## Construye tu certificado
 
 En la consola/shell (Bash, Ksh o Zsh)
 
@@ -265,12 +265,12 @@ En la consola/shell (Bash, Ksh o Zsh)
 
 Notas:
 
-* 1) Reemplaza *tu_nick* por el tuyo, obvio no? xD
-* 2) Igualmente con *tu_nick*
-* 3) Esta línea generará tu huella, será algo similar a esto: c2ba4db1ccc82cd3f8ec50ebcc3461628f95ab27 (eso lo agregaremos a tu cuenta freenode)
-* 4) el archivo .pem generado, copialo al directorio de irssi.
+1) Reemplaza *tu_nick* por el tuyo, obvio no? xD
+2) Igualmente con *tu_nick*
+3) Esta línea generará tu huella, será algo similar a esto: c2ba4db1ccc82cd3f8ec50ebcc3461628f95ab27 (eso lo agregaremos a tu cuenta freenode)
+4) El archivo .pem generado, copialo al directorio de irssi.
 
-## Agregando tu huella al freenode
+## Agregando tu certificado
 
 * Llamamos al *irssi*
 
@@ -285,4 +285,83 @@ irssi
 /msg NickServ IDENTIFY Tu_Nick YourPassword
 /msg NICKSERV CERT ADD c2ba4db1ccc82cd3f8ec50ebcc3461628f95ab27
 /quit
+```
+## Configuración *Tor*
+
+Con tu editor favorito (emacs, verdad? xD), agrega lo siguiente al final de este archivo */etc/tor/torrc*
+
+```bash
+sudo emacs -nw /etc/tor/torrc
+mapaddress 10.40.40.40 freenodeok2gncmy.onion
+```
+
+## *Irssi + tor + sasl*
+
+* Inicia irssi
+* Dentro de irssi ejecuta lo siguiente:
+
+```bash
+/network add -sasl_username <TuContraseñaFreenode> -sasl_password ~/.irssi/tu_nick.pem -sasl_mechanism EXTERNAL freenodetor
+/server add -auto -net freenodetor -ssl -ssl_cert ~/.irssi/tu_nick.pem freenodeok2gncmy.onion 6697
+/save
+```
+
+## *Irssi* sobre *Tor*
+
+```bash
+torify irssi -n tu_freenode_nick
+```
+
+## Verificando el anonimato y certificado
+
+1) Si escribes el comando */whois* en la ventana 1 del irssi revelará información, entre ellas tu *capa* o nombre asociado a tu hostname, 
+será algo similar a esto:
+
+```
+~innaky@gateway/tor-sasl/innaky
+```
+
+2) La siguiente información es tu huella, debe ser igual a la agregada en los pasos anteriores.
+
+3) El modo de tu usuaria debe ser:
+
+```
+innaky(+Zi)
+```
+
+# Felicidades
+
+Si pasastes todos los checks, estas conectada usando tor.
+
+
+# Notas
+
+* El archivo *.pem* que generas colócale tu nick.
+* el comando *emacs -nw* es porque emacs es mi editor favorito, pero eres libre de usar el que ames.
+* Los tutos de la red hablan de **10.40.40.40**, pero ¿qué sucede si deseas **10.17.23.41**?
+
+ok!, 
+
+sólo debes seguir los siguientes pasos:
+
+1) Edita el archivo */etc/tor/torrc*, **cambia 10.40.40.40** por **10.17.23.41**
+2) Restaura tor 
+   ```
+   # systemctl restart tor
+   ```
+3) En el archivo de ~/.irssi/config, busca la configuración de *freenodetor* y **cambia 10.40.40.40** por **10.17.23.41**
+
+La salida sería algo como lo siguiente:
+
+
+```bash
+  {
+    address = "10.17.23.41";
+    chatnet = "freenodetor";
+    port = "6697";
+    use_tls = "yes";
+    tls_cert = "~/.irssi/innaky.pem";
+    tls_verify = "no";
+    autoconnect = "yes";
+  },
 ```
