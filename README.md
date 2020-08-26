@@ -1,5 +1,10 @@
+# Idioms/Idiomas
+
+* [English]
+* [Español]
+
 # Configuration Tor-SASL + irssi + Freenode
-Configuration for irssi with tor sasl, freenode.
+Configuration for irssi with tor + sasl, freenode.
 
 # Motivation
 
@@ -199,4 +204,85 @@ The output is similar this:
     tls_verify = "no";
     autoconnect = "yes";
   },
+```
+# Configuración Tor-SASL + irssi + Freenode
+Configuración con TOR + SASL + irssi para Freenode
+
+# Motivación
+
+Para mis amistades y todos aquellos seres que hagan *pattern matching* con criatura, por favor!, no más preguntas sobre esta configuración *RTFM!* xD
+
+# Configuración
+
+## Instalación (Debian GNU/Linux)
+
+```bash
+# apt update
+# apt install irssi tor
+```
+
+## Registro de nick en freenode
+
+* Ejecuta *irssi*.
+
+```bash
+irssi
+```
+
+* Dentro de *irssi* escribe
+
+```bash
+/server add -tls -tls_verify -network freenode -port 6697 chat.freenode.net
+/save
+/connect freenode
+```
+
+De esta forma le decimos al irssi que cuando pidamos conectarnos a freenode, siempre sea a través del puerto 6697, 
+aquí su [RFC](https://www.rfc-editor.org/info/rfc7194)
+
+* Registro
+
+Una vez conectada al Freenode, en la línea de abajo agrega:
+
+```bash
+/nick coloca_tu_nick_aquí
+/msg NickServ REGISTER TuContraseñaAquí tucorreo@innaky.org
+/quit
+```
+
+y revisa tu correo electrónico.
+
+# Construye tu *fingerprint* (Huella)
+
+En la consola/shell (Bash, Ksh o Zsh)
+
+```bash
+1> openssl req -newkey rsa:2048 -days 730 -x509 -keyout tu_nick.key -out tu_nick.cert -nodes 
+2> cat tu_nick.cert tu_nick.key > tu_nick.pem
+3> openssl x509 -sha1 -noout -fingerprint -in tu_nick.pem | sed -e 's/^.*=//;s/://g;y/ABCDEF/abcdef/'
+4> mv tu_nick.pem ~/.irssi/config
+```
+
+Notas:
+
+* 1) Reemplaza *tu_nick* por el tuyo, obvio no? xD
+* 2) Igualmente con *tu_nick*
+* 3) Esta línea generará tu huella, será algo similar a esto: c2ba4db1ccc82cd3f8ec50ebcc3461628f95ab27 (eso lo agregaremos a tu cuenta freenode)
+* 4) el archivo .pem generado, copialo al directorio de irssi.
+
+## Agregando tu huella al freenode
+
+* Llamamos al *irssi*
+
+```bash
+irssi
+```
+
+* Dentro de irssi, agrega lo siguiente:
+
+```bash
+/nick Tu_nick
+/msg NickServ IDENTIFY Tu_Nick YourPassword
+/msg NICKSERV CERT ADD c2ba4db1ccc82cd3f8ec50ebcc3461628f95ab27
+/quit
 ```
